@@ -42,13 +42,16 @@ public class Main {
                     viewAllActivities();
                     break;
                 case 3:
-                    searchActivity();
+                    searchActivities();
                     break;
                 case 4:
                     removeActivity();
                     break;
                 case 5:
-                    System.out.println("Exiting program...");
+                    updateActivity();
+                    break;
+                case 6:
+                    System.out.println("Goodbye!");
                     scanner.close();
                     System.exit(0);
                 default:
@@ -61,9 +64,10 @@ public class Main {
         System.out.println("\n=== Activity Management System ===");
         System.out.println("1. Add New Activity");
         System.out.println("2. View All Activities");
-        System.out.println("3. Search Activity");
+        System.out.println("3. Search Activities");
         System.out.println("4. Remove Activity");
-        System.out.println("5. Exit");
+        System.out.println("5. Update Activity");
+        System.out.println("6. Exit");
     }
 
     private static void addActivity() {
@@ -290,8 +294,8 @@ public class Main {
         }
     }
 
-    private static void searchActivity() {
-        System.out.println("\n=== Search Activity ===");
+    private static void searchActivities() {
+        System.out.println("\n=== Search Activities ===");
         System.out.println("1. Search by Title");
         System.out.println("2. Search by Type");
         
@@ -335,6 +339,200 @@ public class Main {
         } else {
             System.out.println("Activity not found.");
         }
+    }
+
+    private static void updateActivity() {
+        System.out.println("\n=== Update Activity ===");
+        
+        // First, find the activity to update
+        String title = getStringInput("Enter activity title to update: ");
+        Activity activity = manager.findActivityByTitle(title);
+        
+        if (activity == null) {
+            System.out.println("Activity not found.");
+            return;
+        }
+
+        // Display current activity details
+        System.out.println("\nCurrent Activity Details:");
+        displayActivityDetails(activity);
+
+        // Create a new activity of the same type with updated details
+        Activity updatedActivity = null;
+        try {
+            if (activity instanceof Meeting) {
+                updatedActivity = updateMeeting((Meeting) activity);
+            } else if (activity instanceof SeminarWorkshop) {
+                updatedActivity = updateSeminarWorkshop((SeminarWorkshop) activity);
+            } else if (activity instanceof Webinar) {
+                updatedActivity = updateWebinar((Webinar) activity);
+            } else if (activity instanceof Training) {
+                updatedActivity = updateTraining((Training) activity);
+            } else if (activity instanceof CommunityOutreach) {
+                updatedActivity = updateCommunityOutreach((CommunityOutreach) activity);
+            } else if (activity instanceof Exhibit) {
+                updatedActivity = updateExhibit((Exhibit) activity);
+            }
+
+            if (updatedActivity != null) {
+                manager.updateActivity(activity, updatedActivity);
+                System.out.println("Activity updated successfully!");
+            }
+        } catch (Exception e) {
+            System.out.println("Error updating activity: " + e.getMessage());
+        }
+    }
+
+    private static Meeting updateMeeting(Meeting meeting) {
+        System.out.println("\nEnter new details (press Enter to keep current value):");
+        
+        String title = getUpdatedString("Title", meeting.getTitle());
+        String description = getUpdatedString("Description", meeting.getDescription());
+        LocalDateTime startDateTime = getUpdatedDateTime("Start Date and Time (yyyy-MM-dd HH:mm)", meeting.getStartDateTime());
+        LocalDateTime endDateTime = getUpdatedDateTime("End Date and Time (yyyy-MM-dd HH:mm)", meeting.getEndDateTime());
+        String venue = getUpdatedString("Venue", meeting.getVenue());
+        String organizer = getUpdatedString("Organizer", meeting.getOrganizer());
+        int maxParticipants = getUpdatedInt("Maximum Participants", meeting.getMaxParticipants());
+        String agenda = getUpdatedString("Agenda", meeting.getAgenda());
+        boolean isVirtual = getUpdatedBoolean("Is Virtual", meeting.isVirtual());
+
+        return new Meeting(title, description, startDateTime, endDateTime,
+                         venue, organizer, maxParticipants, agenda, isVirtual);
+    }
+
+    private static SeminarWorkshop updateSeminarWorkshop(SeminarWorkshop seminar) {
+        System.out.println("\nEnter new details (press Enter to keep current value):");
+        
+        String title = getUpdatedString("Title", seminar.getTitle());
+        String description = getUpdatedString("Description", seminar.getDescription());
+        LocalDateTime startDateTime = getUpdatedDateTime("Start Date and Time (yyyy-MM-dd HH:mm)", seminar.getStartDateTime());
+        LocalDateTime endDateTime = getUpdatedDateTime("End Date and Time (yyyy-MM-dd HH:mm)", seminar.getEndDateTime());
+        String venue = getUpdatedString("Venue", seminar.getVenue());
+        String organizer = getUpdatedString("Organizer", seminar.getOrganizer());
+        int maxParticipants = getUpdatedInt("Maximum Participants", seminar.getMaxParticipants());
+        
+        System.out.println("Enter speakers (comma-separated): ");
+        String[] speakers = getStringInput("").split(",");
+        
+        System.out.println("Enter workshop materials (comma-separated): ");
+        String[] materials = getStringInput("").split(",");
+        
+        double registrationFee = getUpdatedDouble("Registration Fee", seminar.getRegistrationFee());
+
+        return new SeminarWorkshop(
+            title, description, startDateTime, endDateTime,
+            venue, organizer, maxParticipants, speakers,
+            materials, registrationFee
+        );
+    }
+
+    private static Webinar updateWebinar(Webinar webinar) {
+        System.out.println("\nEnter new details (press Enter to keep current value):");
+        
+        String title = getUpdatedString("Title", webinar.getTitle());
+        String description = getUpdatedString("Description", webinar.getDescription());
+        LocalDateTime startDateTime = getUpdatedDateTime("Start Date and Time (yyyy-MM-dd HH:mm)", webinar.getStartDateTime());
+        LocalDateTime endDateTime = getUpdatedDateTime("End Date and Time (yyyy-MM-dd HH:mm)", webinar.getEndDateTime());
+        String venue = getUpdatedString("Platform", webinar.getVenue());
+        String organizer = getUpdatedString("Organizer", webinar.getOrganizer());
+        int maxParticipants = getUpdatedInt("Maximum Participants", webinar.getMaxParticipants());
+        String platformLink = getUpdatedString("Platform Link", webinar.getPlatformLink());
+        
+        System.out.println("Enter technical requirements (comma-separated): ");
+        String[] requirements = getStringInput("").split(",");
+        
+        boolean recordingAvailable = getUpdatedBoolean("Recording Available", webinar.isRecordingAvailable());
+
+        return new Webinar(
+            title, description, startDateTime, endDateTime,
+            venue, organizer, maxParticipants, platformLink,
+            requirements, recordingAvailable
+        );
+    }
+
+    private static Training updateTraining(Training training) {
+        System.out.println("\nEnter new details (press Enter to keep current value):");
+        
+        String title = getUpdatedString("Title", training.getTitle());
+        String description = getUpdatedString("Description", training.getDescription());
+        LocalDateTime startDateTime = getUpdatedDateTime("Start Date and Time (yyyy-MM-dd HH:mm)", training.getStartDateTime());
+        LocalDateTime endDateTime = getUpdatedDateTime("End Date and Time (yyyy-MM-dd HH:mm)", training.getEndDateTime());
+        String venue = getUpdatedString("Venue", training.getVenue());
+        String organizer = getUpdatedString("Organizer", training.getOrganizer());
+        int maxParticipants = getUpdatedInt("Maximum Participants", training.getMaxParticipants());
+        
+        System.out.println("Enter trainers (comma-separated): ");
+        String[] trainers = getStringInput("").split(",");
+        
+        System.out.println("Enter prerequisites (comma-separated): ");
+        String[] prerequisites = getStringInput("").split(",");
+        
+        System.out.println("Enter learning objectives (comma-separated): ");
+        String[] objectives = getStringInput("").split(",");
+        
+        boolean certificationOffered = getUpdatedBoolean("Certification Offered", training.isCertificationOffered());
+
+        return new Training(
+            title, description, startDateTime, endDateTime,
+            venue, organizer, maxParticipants, trainers,
+            prerequisites, objectives, certificationOffered
+        );
+    }
+
+    private static CommunityOutreach updateCommunityOutreach(CommunityOutreach outreach) {
+        System.out.println("\nEnter new details (press Enter to keep current value):");
+        
+        String title = getUpdatedString("Title", outreach.getTitle());
+        String description = getUpdatedString("Description", outreach.getDescription());
+        LocalDateTime startDateTime = getUpdatedDateTime("Start Date and Time (yyyy-MM-dd HH:mm)", outreach.getStartDateTime());
+        LocalDateTime endDateTime = getUpdatedDateTime("End Date and Time (yyyy-MM-dd HH:mm)", outreach.getEndDateTime());
+        String venue = getUpdatedString("Venue", outreach.getVenue());
+        String organizer = getUpdatedString("Organizer", outreach.getOrganizer());
+        int maxParticipants = getUpdatedInt("Maximum Participants", outreach.getMaxParticipants());
+        String targetCommunity = getUpdatedString("Target Community", outreach.getTargetCommunity());
+        
+        System.out.println("Enter services (comma-separated): ");
+        String[] services = getStringInput("").split(",");
+        
+        System.out.println("Enter required resources (comma-separated): ");
+        String[] resources = getStringInput("").split(",");
+        
+        System.out.println("Enter partners (comma-separated): ");
+        String[] partners = getStringInput("").split(",");
+
+        return new CommunityOutreach(
+            title, description, startDateTime, endDateTime,
+            venue, organizer, maxParticipants, targetCommunity,
+            services, resources, partners
+        );
+    }
+
+    private static Exhibit updateExhibit(Exhibit exhibit) {
+        System.out.println("\nEnter new details (press Enter to keep current value):");
+        
+        String title = getUpdatedString("Title", exhibit.getTitle());
+        String description = getUpdatedString("Description", exhibit.getDescription());
+        LocalDateTime startDateTime = getUpdatedDateTime("Start Date and Time (yyyy-MM-dd HH:mm)", exhibit.getStartDateTime());
+        LocalDateTime endDateTime = getUpdatedDateTime("End Date and Time (yyyy-MM-dd HH:mm)", exhibit.getEndDateTime());
+        String venue = getUpdatedString("Venue", exhibit.getVenue());
+        String organizer = getUpdatedString("Organizer", exhibit.getOrganizer());
+        int maxParticipants = getUpdatedInt("Maximum Participants", exhibit.getMaxParticipants());
+        String theme = getUpdatedString("Theme", exhibit.getTheme());
+        
+        System.out.println("Enter exhibitors (comma-separated): ");
+        String[] exhibitors = getStringInput("").split(",");
+        
+        System.out.println("Enter exhibits (comma-separated): ");
+        String[] exhibits = getStringInput("").split(",");
+        
+        boolean isInteractive = getUpdatedBoolean("Interactive Exhibit", exhibit.isInteractive());
+        double entryFee = getUpdatedDouble("Entry Fee", exhibit.getEntryFee());
+
+        return new Exhibit(
+            title, description, startDateTime, endDateTime,
+            venue, organizer, maxParticipants, theme,
+            exhibitors, exhibits, isInteractive, entryFee
+        );
     }
 
     private static void displayActivityDetails(Activity activity) {
@@ -432,6 +630,81 @@ public class Main {
             try {
                 System.out.print(prompt);
                 double value = Double.parseDouble(scanner.nextLine().trim());
+                if (value < 0) {
+                    System.out.println("Please enter a positive number.");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+            }
+        }
+    }
+
+    private static String getUpdatedString(String prompt, String currentValue) {
+        System.out.printf("%s [%s]: ", prompt, currentValue);
+        String input = scanner.nextLine().trim();
+        return input.isEmpty() ? currentValue : input;
+    }
+
+    private static int getUpdatedInt(String prompt, int currentValue) {
+        while (true) {
+            System.out.printf("%s [%d]: ", prompt, currentValue);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                return currentValue;
+            }
+            try {
+                int value = Integer.parseInt(input);
+                if (value < 0) {
+                    System.out.println("Please enter a positive number.");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+            }
+        }
+    }
+
+    private static LocalDateTime getUpdatedDateTime(String prompt, LocalDateTime currentValue) {
+        while (true) {
+            System.out.printf("%s [%s]: ", prompt, currentValue.format(dateFormatter));
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                return currentValue;
+            }
+            try {
+                return LocalDateTime.parse(input, dateFormatter);
+            } catch (DateTimeParseException e) {
+                System.out.println("Please enter date and time in format: yyyy-MM-dd HH:mm");
+            }
+        }
+    }
+
+    private static boolean getUpdatedBoolean(String prompt, boolean currentValue) {
+        while (true) {
+            System.out.printf("%s [%s]: ", prompt, currentValue);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                return currentValue;
+            }
+            if (input.equalsIgnoreCase("true") || input.equalsIgnoreCase("false")) {
+                return Boolean.parseBoolean(input);
+            }
+            System.out.println("Please enter true or false.");
+        }
+    }
+
+    private static double getUpdatedDouble(String prompt, double currentValue) {
+        while (true) {
+            System.out.printf("%s [%.2f]: ", prompt, currentValue);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                return currentValue;
+            }
+            try {
+                double value = Double.parseDouble(input);
                 if (value < 0) {
                     System.out.println("Please enter a positive number.");
                     continue;

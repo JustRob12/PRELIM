@@ -62,10 +62,20 @@ public class ActivityManager {
         notifyActivityRemoved(activity);
     }
 
-    public void updateActivity(Activity activity) {
-        // Implementation for updating activity
-        saveActivities();
-        notifyActivityUpdated(activity);
+    public void updateActivity(Activity oldActivity, Activity updatedActivity) {
+        ActivityIterator iterator = activities.iterator();
+        while (iterator.hasNext()) {
+            Activity current = iterator.next();
+            if (current.getTitle().equals(oldActivity.getTitle())) {
+                // Update the activity
+                activities.removeActivity(current);
+                activities.addActivity(updatedActivity);
+                saveActivities();
+                notifyActivityUpdated(updatedActivity);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Activity not found: " + oldActivity.getTitle());
     }
 
     public Activity findActivityByTitle(String title) {
